@@ -7,68 +7,369 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html, body {
-    width: 100%;
-    height: 100%;
     background: #000;
-    overflow: hidden;
-    cursor: pointer;
+    color: #39ff14;
+    font-family: 'Courier New', monospace;
+    overflow-x: hidden;
+    min-height: 100%;
   }
 
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  #matrix {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.35;
+  }
+
+  /* scanlines estilo CRT por cima de tudo */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.15),
+      rgba(0,0,0,0.15) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .conteudo-central {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+
+  h1 {
+    font-size: 2.4em;
+    text-shadow: 0 0 8px #39ff14, 0 0 20px #39ff14;
+    animation: glitch 3.5s infinite;
+  }
+
+  @keyframes glitch {
+    0%, 92%, 100% { transform: translate(0,0); text-shadow: 0 0 8px #39ff14, 0 0 20px #39ff14; }
+    93% { transform: translate(-2px, 1px); text-shadow: 2px 0 #ff004c, -2px 0 #00e5ff; }
+    94% { transform: translate(2px, -1px); text-shadow: -2px 0 #ff004c, 2px 0 #00e5ff; }
+    95% { transform: translate(0,0); text-shadow: 0 0 8px #39ff14, 0 0 20px #39ff14; }
+  }
+
+  .frase {
+    font-style: italic;
+    margin-top: 15px;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+  }
+
+  #mensagem {
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+  }
+
+  #bloco-contador {
+    margin-top: 25px;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+    animation-delay: .3s;
+  }
+
+  #bloco-gif {
+    margin-top: 25px;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+    animation-delay: .6s;
+  }
+
+  #rodape {
+    margin-top: 25px;
+    opacity: 0;
+    animation: fadeUp .8s ease forwards;
+    animation-delay: .9s;
+    padding-bottom: 40px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   img {
-    max-width: 100%;
-    max-height: 100%;
-    display: block;
+    max-width: 90%;
+    border: 2px solid #39ff14;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(57,255,20,0.5);
   }
 
-  #overlay {
+  a {
+    color: #39ff14;
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px dashed #39ff14;
+  }
+  a:hover { color: #fff; border-bottom-color: #fff; }
+
+  /* Tela inicial (gate) */
+  #gate {
     position: fixed;
-    inset: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #888;
-    font-family: sans-serif;
-    font-size: 14px;
-    background: #000;
-    z-index: 2;
+    z-index: 10;
+    text-align: center;
+    padding: 20px;
   }
 
-  #overlay.hidden {
+  #boot {
+    font-size: 1em;
+    min-height: 90px;
+    margin-bottom: 20px;
+    white-space: pre-line;
+    max-width: 520px;
+  }
+
+  #boot .cursor {
+    display: inline-block;
+    width: 8px;
+    background: #39ff14;
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  #gate h2 {
+    font-size: 1.6em;
+    margin-bottom: 25px;
+    text-shadow: 0 0 6px #39ff14;
+  }
+
+  #btnEntrar {
+    background: #39ff14;
+    color: #000;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.3em;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    box-shadow: 0 0 15px #39ff14;
+    display: none;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  #btnEntrar:hover {
+    background: #2ecc0f;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 10px #39ff14; }
+    50% { box-shadow: 0 0 25px #39ff14; }
+  }
+
+  #btnSom {
+    margin-top: 15px;
+    background: transparent;
+    color: #39ff14;
+    border: 1px solid #39ff14;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    display: none;
+  }
+
+  /* Conteúdo escondido até clicar */
+  #conteudo {
     display: none;
   }
 </style>
 </head>
 <body>
 
-  <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmFjYTY5YTVvenNpZ2pzZDRwc3hiNDl4Z3dzejYwYjRrYXczYml6cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ar71Hyi0ZKejXzMoNs/giphy.gif" alt="Batman sentado na chuva">
+  <canvas id="matrix"></canvas>
 
-  <audio id="musica" src="musica.mp3" loop></audio>
+  <!-- Tela inicial que precisa ser clicada -->
+  <div id="gate">
+    <div id="boot"></div>
+    <button id="btnEntrar">🦇 ENTRAR</button>
+  </div>
 
-  <div id="overlay">clique para tocar 🔊</div>
+  <!-- Conteúdo real, só aparece após o clique -->
+  <div class="conteudo-central" id="conteudo">
+    <h1>👀 Peguei você chorando!</h1>
+    <p id="mensagem">detectando localização...</p>
+    <p class="frase" id="frase"></p>
+
+    <div id="bloco-contador">
+      <div align="center">
+        <a href="https://contador.s12.com.br">
+          <img src="https://contador.s12.com.br/img-8ZC960yCC8b8W5Z3-1.gif" border="0" alt="contador gratuito de visitas">
+        </a>
+        <script type="text/javascript" src="https://contador.s12.com.br/ad.js?id=8ZC960yCC8b8W5Z3"></script>
+      </div>
+      <button id="btnSom">🔊 tocar música</button>
+    </div>
+
+    <div id="bloco-gif">
+      <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
+    </div>
+
+    <p id="rodape">
+      agora que você tá aqui, segue lá na <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a><br>
+      e deixa seu choro ou elogio nos comentários da Steam no meu perfil 😄
+    </p>
+  </div>
+
+  <audio id="musica" loop preload="auto">
+    <source src="musica.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
-    const audio = document.getElementById('musica');
-    const overlay = document.getElementById('overlay');
+    /* ===== Fundo estilo Matrix (chuva de caracteres) ===== */
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
-    // Tenta autoplay direto (funciona em alguns navegadores/contextos)
-    audio.play().then(() => {
-      overlay.classList.add('hidden');
-    }).catch(() => {
-      // Bloqueado: precisa de interação do usuário
+    const letras = "01ヲァィゥABCBATMANｦｧｨｩｪｫｬｭｮｯｰ";
+    const fontSize = 16;
+    let colunas, gotas;
+    function initGotas() {
+      colunas = Math.floor(canvas.width / fontSize);
+      gotas = Array(colunas).fill(1);
+    }
+    initGotas();
+    window.addEventListener('resize', initGotas);
+
+    function desenharMatrix() {
+      ctx.fillStyle = "rgba(0,0,0,0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#39ff14";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < gotas.length; i++) {
+        const texto = letras[Math.floor(Math.random() * letras.length)];
+        ctx.fillText(texto, i * fontSize, gotas[i] * fontSize);
+        if (gotas[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          gotas[i] = 0;
+        }
+        gotas[i]++;
+      }
+    }
+    setInterval(desenharMatrix, 40);
+
+    /* ===== Boot sequence (efeito de digitação) ===== */
+    const linhasBoot = [
+      "> iniciando protocolo anti-tilt v3.7...",
+      "> escaneando presença de smokes mal jogados...",
+      "> localizando última call ignorada do time...",
+      "> carregando nível de constrangimento...",
+      "> tudo pronto. clique para revelar o resultado."
+    ];
+    const bootEl = document.getElementById('boot');
+    const btnEntrar = document.getElementById('btnEntrar');
+
+    function digitar(linhas, i, cb) {
+      if (i >= linhas.length) { cb(); return; }
+      let texto = linhas[i];
+      let j = 0;
+      const linha = document.createElement('div');
+      bootEl.appendChild(linha);
+      const intervalo = setInterval(() => {
+        linha.textContent = texto.slice(0, j) + "▌";
+        j++;
+        if (j > texto.length) {
+          clearInterval(intervalo);
+          linha.textContent = texto;
+          setTimeout(() => digitar(linhas, i + 1, cb), 250);
+        }
+      }, 22);
+    }
+    digitar(linhasBoot, 0, () => {
+      btnEntrar.style.display = "inline-block";
     });
 
-    // Ao primeiro clique em qualquer lugar da página, garante que toque
-    document.body.addEventListener('click', () => {
-      audio.play();
-      overlay.classList.add('hidden');
-    }, { once: true });
-  </script>
+    /* ===== Frases engraçadas (bem mais variadas) ===== */
+    const frases = [
+      "relaxa, era só um smoke mal jogado",
+      "o rank não define seu valor... define só um pouco",
+      "avisa a rota que era friendly fire",
+      "5 anos de premier pra isso?",
+      "posiciona o mouse e sai andando",
+      "o bot da última rodada mandou um recado: 'demorou'",
+      "seu ping tá ótimo, sua decisão que não",
+      "flashou o próprio time com estilo, reconheço",
+      "chorou tanto que baixou o FPS do servidor",
+      "aquele B rush sem plano nenhum foi cinematográfico",
+      "o replay disso já virou meme interno",
+      "nem o Batman ficaria tão triste na chuva",
+      "eco fragou você e ainda mandou 'gg ez'",
+      "sua mira tá ótima... pro chão"
+    ];
 
+    /* ===== Lógica do botão ENTRAR ===== */
+    const audio = document.getElementById("musica");
+    const btnSom = document.getElementById("btnSom");
+
+    btnEntrar.addEventListener("click", () => {
+      document.getElementById("gate").style.display = "none";
+      document.getElementById("conteudo").style.display = "block";
+
+      // Toca a música nesse mesmo clique (interação do usuário libera o autoplay)
+      const tocarPromise = audio.play();
+      if (tocarPromise !== undefined) {
+        tocarPromise.catch(() => {
+          // Autoplay bloqueado mesmo após o clique (raro) -> mostra botão manual
+          btnSom.style.display = "inline-block";
+        });
+      }
+
+      tentarGeo();
+
+      document.getElementById("frase").textContent =
+        frases[Math.floor(Math.random() * frases.length)];
+    });
+
+    btnSom.addEventListener("click", () => {
+      audio.play();
+      btnSom.style.display = "none";
+    });
+
+    /* ===== Geolocalização com fallback e timeout, pra nunca travar ===== */
+    function comTimeout(promessa, ms) {
+      return Promise.race([
+        promessa,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))
+      ]);
+    }
+
+    function tentarGeo() {
+      comTimeout(fetch("https://ipapi.co/json/").then(r => r.json()), 4000)
+        .then(data => {
+          document.getElementById("mensagem").textContent =
+            `curioso e chorão detectado perto de ${data.city}`;
+        })
+        .catch(() => {
+          comTimeout(fetch("https://ipwho.is/").then(r => r.json()), 4000)
+            .then(data => {
+              document.getElementById("mensagem").textContent =
+                `curioso e chorão detectado perto de ${data.city}`;
+            })
+            .catch(() => {
+              document.getElementById("mensagem").textContent =
+                "não consegui te localizar, mas te peguei mesmo assim";
+            });
+        });
+    }
+  </script>
 </body>
 </html>
