@@ -24,7 +24,12 @@
       border: 3px solid #39ff14;
       border-radius: 10px;
     }
-    #ip { font-weight: bold; color: #fff; }
+    #mensagem {
+      font-weight: bold;
+      color: #fff;
+      font-size: 1.3em;
+      margin-top: 15px;
+    }
     .frase {
       margin-top: 20px;
       font-size: 1.2em;
@@ -34,15 +39,14 @@
 </head>
 <body>
   <h1>👀 Peguei você chorando!</h1>
-  <p>Seu IP é: <span id="ip">carregando...</span></p>
-  <p>Cidade aproximada: <span id="cidade">carregando...</span></p>
+  <p id="mensagem">detectando localização...</p>
   <p class="frase" id="frase"></p>
 
-  <audio autoplay loop>
+  <audio id="musica" loop>
     <source src="musica.mp3" type="audio/mpeg">
   </audio>
 
-  <img src="animacao.gif" alt="Animação divertida">
+  <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
 
   <script>
     const frases = [
@@ -58,12 +62,18 @@
     fetch("https://ipapi.co/json/")
       .then(res => res.json())
       .then(data => {
-        document.getElementById("ip").textContent = data.ip;
-        document.getElementById("cidade").textContent = data.city + ", " + data.region;
+        document.getElementById("mensagem").textContent =
+          `curioso e chorão detectado perto de ${data.city}`;
       })
       .catch(() => {
-        document.getElementById("ip").textContent = "não detectado";
+        document.getElementById("mensagem").textContent =
+          "curioso e chorão detectado";
       });
+
+    const audio = document.getElementById("musica");
+    document.body.addEventListener("click", () => {
+      audio.play();
+    }, { once: true });
   </script>
 </body>
 </html>
