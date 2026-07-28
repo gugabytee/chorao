@@ -14,7 +14,6 @@
     min-height: 100%;
   }
 
-  /* Vídeo de fundo em loop, se adapta a qualquer tamanho de tela */
   #bgvideo {
     position: fixed;
     top: 0; left: 0;
@@ -29,13 +28,9 @@
     opacity: 1;
   }
 
-  .conteudo-central {
+  .tela-central {
     position: relative;
     z-index: 2;
-    text-align: center;
-  }
-
-  .tela-central {
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -43,7 +38,6 @@
     padding: 20px;
   }
 
-  /* Contraste pro texto que fica fora de qualquer terminal (gate/boot) */
   #gate h2, #boot div {
     text-shadow:
       0 0 4px #000,
@@ -52,7 +46,6 @@
       0 0 2px #39ff14;
   }
 
-  /* Janelinha estilo terminal — reutilizável para título e contador */
   .janela-terminal {
     display: block;
     width: 100%;
@@ -88,13 +81,9 @@
     line-height: 1.5;
   }
 
-  @keyframes blink { 50% { opacity: 0; } }
-
   h1 {
     font-size: 1em;
     font-weight: normal;
-    animation: none;
-    text-shadow: none;
     margin: 0;
   }
 
@@ -112,23 +101,25 @@
     line-height: 1.5;
   }
 
-  #bloco-contador {
-    margin-top: 40px;
-    padding-bottom: 40px;
-  }
-
-  #bloco-contador .janela-terminal {
-    animation-delay: .3s;
+  #linha-contador {
+    margin-top: 18px;
     text-align: center;
   }
 
-  #bloco-contador p {
-    margin-bottom: 10px;
-    font-size: 1.05em;
+  #linha-contador p {
+    margin-bottom: 8px;
   }
 
   #btnSom {
-    margin-top: 10px;
+    margin-top: 12px;
+    background: transparent;
+    color: #39ff14;
+    border: 1px solid #39ff14;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    display: none;
   }
 
   @keyframes fadeUp {
@@ -144,7 +135,6 @@
   }
   a:hover { color: #fff; border-bottom-color: #fff; }
 
-  /* Tela inicial (gate) - levemente translúcida pra já mostrar o vídeo por trás */
   #gate {
     position: fixed;
     top: 0; left: 0;
@@ -189,19 +179,6 @@
     50% { box-shadow: 0 0 25px #39ff14; }
   }
 
-  #btnSom {
-    background: transparent;
-    color: #39ff14;
-    border: 1px solid #39ff14;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-    display: none;
-    text-shadow: none;
-  }
-
-  /* Conteúdo escondido até clicar */
   #conteudo {
     display: none;
   }
@@ -212,20 +189,13 @@
   <video id="bgvideo" muted loop playsinline>
     <source src="video.mp4" type="video/mp4">
   </video>
-  <script>
-    document.getElementById("bgvideo").addEventListener("error", () => {
-      console.error("Erro ao carregar video.mp4 — confira se o arquivo está na mesma pasta do HTML e se o nome/extensão batem exatamente.");
-    });
-  </script>
 
-  <!-- Tela inicial que precisa ser clicada -->
   <div id="gate">
     <div id="boot"></div>
     <button id="btnEntrar">ENTRAR</button>
   </div>
 
-  <!-- Conteúdo real, só aparece após o clique -->
-  <div class="conteudo-central" id="conteudo">
+  <div id="conteudo">
     <div class="tela-central">
       <div class="janela-terminal">
         <div class="barra">
@@ -241,27 +211,19 @@
             <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a>
             pra chorar ao vivo, e um comentário na Steam pra registrar o momento
           </p>
-        </div>
-      </div>
-    </div>
 
-    <div id="bloco-contador">
-      <div class="janela-terminal">
-        <div class="barra">
-          <span class="bolinha"></span>
-          <span>contador.exe</span>
-        </div>
-        <div class="corpo">
-          <p>número de curiosos registrados até agora:</p>
-          <div align="center">
-            <a href="">
-              <img src="https://contador.s12.com.br/img-Awwa33Zd12cDcw10-9.gif" border="0" alt="">
-            </a>
-            <script type="text/javascript" src="https://contador.s12.com.br/ad.js?id=8ZC960yCC8b8W5Z3"></script>
+          <div id="linha-contador">
+            <p>número de curiosos registrados até agora:</p>
+            <div align="center">
+              <a href="">
+                <img src="https://contador.s12.com.br/img-Awwa33Zd12cDcw10-9.gif" border="0" alt="">
+              </a>
+              <script type="text/javascript" src="https://contador.s12.com.br/ad.js?id=8ZC960yCC8b8W5Z3"></script>
+            </div>
+            <button id="btnSom">🔊 tocar música</button>
           </div>
         </div>
       </div>
-      <button id="btnSom">🔊 tocar música</button>
     </div>
   </div>
 
@@ -270,7 +232,6 @@
   </audio>
 
   <script>
-    /* ===== Boot sequence (efeito de digitação) ===== */
     const linhasBoot = [
       "> escaneando nível de tilt...",
       "> tudo pronto. clique se tiver coragem."
@@ -298,7 +259,6 @@
       btnEntrar.style.display = "inline-block";
     });
 
-    /* ===== Frases zoeiras, sem papas na língua ===== */
     const frases = [
       "curiosidade nível clickbait de golpe",
       "clicou mais rápido que reage a um flash",
@@ -312,7 +272,6 @@
       "mira ótima... pro próprio pé"
     ];
 
-    /* ===== Lógica do botão ENTRAR ===== */
     const audio = document.getElementById("musica");
     const btnSom = document.getElementById("btnSom");
 
@@ -320,18 +279,13 @@
       document.getElementById("gate").style.display = "none";
       document.getElementById("conteudo").style.display = "block";
 
-      // Vídeo só aparece e começa a rodar agora
       const video = document.getElementById("bgvideo");
       video.classList.add("ativo");
-      video.play().catch((err) => {
-        console.error("Não consegui iniciar o vídeo:", err);
-      });
+      video.play().catch(() => {});
 
-      // Toca a música nesse mesmo clique (interação do usuário libera o autoplay)
       const tocarPromise = audio.play();
       if (tocarPromise !== undefined) {
         tocarPromise.catch(() => {
-          // Autoplay bloqueado mesmo após o clique (raro) -> mostra botão manual
           btnSom.style.display = "inline-block";
         });
       }
@@ -347,7 +301,6 @@
       btnSom.style.display = "none";
     });
 
-    /* ===== Geolocalização com fallback e timeout, pra nunca travar ===== */
     function comTimeout(promessa, ms) {
       return Promise.race([
         promessa,
@@ -376,3 +329,4 @@
   </script>
 </body>
 </html>
+
