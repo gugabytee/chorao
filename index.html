@@ -14,12 +14,25 @@
     min-height: 100%;
   }
 
-  #matrix {
+  /* Vídeo de fundo em loop */
+  #bgvideo {
+    position: fixed;
+    top: 50%; left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto; height: auto;
+    transform: translate(-50%, -50%);
+    z-index: -2;
+    object-fit: cover;
+  }
+
+  /* overlay escuro por cima do vídeo, pra não estourar o contraste do texto */
+  #overlay-video {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 0;
-    opacity: 0.35;
+    background: rgba(0,0,0,0.55);
+    z-index: -1;
   }
 
   /* scanlines estilo CRT por cima de tudo */
@@ -71,26 +84,31 @@
     animation: fadeUp .8s ease forwards;
   }
 
-  #bloco-contador {
+  #bloco-gif {
     margin-top: 25px;
     opacity: 0;
     animation: fadeUp .8s ease forwards;
     animation-delay: .3s;
   }
 
-  #bloco-gif {
+  #rodape {
     margin-top: 25px;
     opacity: 0;
     animation: fadeUp .8s ease forwards;
     animation-delay: .6s;
   }
 
-  #rodape {
-    margin-top: 25px;
+  #bloco-contador {
+    margin-top: 40px;
+    padding-bottom: 40px;
     opacity: 0;
     animation: fadeUp .8s ease forwards;
     animation-delay: .9s;
-    padding-bottom: 40px;
+  }
+
+  #bloco-contador p {
+    margin-bottom: 10px;
+    font-size: 1.05em;
   }
 
   @keyframes fadeUp {
@@ -135,14 +153,6 @@
     white-space: pre-line;
     max-width: 520px;
   }
-
-  #boot .cursor {
-    display: inline-block;
-    width: 8px;
-    background: #39ff14;
-    animation: blink 1s step-start infinite;
-  }
-  @keyframes blink { 50% { opacity: 0; } }
 
   #gate h2 {
     font-size: 1.6em;
@@ -192,7 +202,10 @@
 </head>
 <body>
 
-  <canvas id="matrix"></canvas>
+  <video id="bgvideo" autoplay muted loop playsinline>
+    <source src="video.mp4" type="video/mp4">
+  </video>
+  <div id="overlay-video"></div>
 
   <!-- Tela inicial que precisa ser clicada -->
   <div id="gate">
@@ -206,16 +219,6 @@
     <p id="mensagem">detectando localização...</p>
     <p class="frase" id="frase"></p>
 
-    <div id="bloco-contador">
-      <div align="center">
-        <a href="">
-          <img src="https://contador.s12.com.br/img-8ZC960yCC8b8W5Z3-1.gif" border="0" alt="contador gratuito de visitas">
-        </a>
-        <script type="text/javascript" src="https://contador.s12.com.br/ad.js?id=8ZC960yCC8b8W5Z3"></script>
-      </div>
-      <button id="btnSom">🔊 tocar música</button>
-    </div>
-
     <div id="bloco-gif">
       <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
     </div>
@@ -224,6 +227,17 @@
       agora que você tá aqui, segue lá na <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a><br>
       e deixa seu choro ou elogio nos comentários da Steam no meu perfil 😄
     </p>
+
+    <div id="bloco-contador">
+      <p>número de curiosos registrados até agora:</p>
+      <div align="center">
+        <a href="https://contador.s12.com.br">
+          <img src="https://contador.s12.com.br/img-8ZC960yCC8b8W5Z3-1.gif" border="0" alt="contador gratuito de visitas">
+        </a>
+        <script type="text/javascript" src="https://contador.s12.com.br/ad.js?id=8ZC960yCC8b8W5Z3"></script>
+      </div>
+      <button id="btnSom">🔊 tocar música</button>
+    </div>
   </div>
 
   <audio id="musica" loop preload="auto">
@@ -231,42 +245,6 @@
   </audio>
 
   <script>
-    /* ===== Fundo estilo Matrix (chuva de caracteres) ===== */
-    const canvas = document.getElementById('matrix');
-    const ctx = canvas.getContext('2d');
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    const letras = "01ヲァィゥABCBATMANｦｧｨｩｪｫｬｭｮｯｰ";
-    const fontSize = 16;
-    let colunas, gotas;
-    function initGotas() {
-      colunas = Math.floor(canvas.width / fontSize);
-      gotas = Array(colunas).fill(1);
-    }
-    initGotas();
-    window.addEventListener('resize', initGotas);
-
-    function desenharMatrix() {
-      ctx.fillStyle = "rgba(0,0,0,0.08)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#39ff14";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < gotas.length; i++) {
-        const texto = letras[Math.floor(Math.random() * letras.length)];
-        ctx.fillText(texto, i * fontSize, gotas[i] * fontSize);
-        if (gotas[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          gotas[i] = 0;
-        }
-        gotas[i]++;
-      }
-    }
-    setInterval(desenharMatrix, 40);
-
     /* ===== Boot sequence (efeito de digitação) ===== */
     const linhasBoot = [
       "> iniciando protocolo anti-tilt v3.7...",
@@ -298,7 +276,7 @@
       btnEntrar.style.display = "inline-block";
     });
 
-    /* ===== Frases engraçadas (bem mais variadas) ===== */
+    /* ===== Frases engraçadas ===== */
     const frases = [
       "relaxa, era só um smoke mal jogado",
       "o rank não define seu valor... define só um pouco",
