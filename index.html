@@ -22,7 +22,7 @@
     min-height: 100%;
     width: auto; height: auto;
     transform: translate(-50%, -50%);
-    z-index: -1;
+    z-index: 0;
     object-fit: cover;
     opacity: 0;
     transition: opacity 0.6s ease;
@@ -221,6 +221,11 @@
   <video id="bgvideo" muted loop playsinline>
     <source src="video.mp4" type="video/mp4">
   </video>
+  <script>
+    document.getElementById("bgvideo").addEventListener("error", () => {
+      console.error("Erro ao carregar video.mp4 — confira se o arquivo está na mesma pasta do HTML e se o nome/extensão batem exatamente.");
+    });
+  </script>
 
   <!-- Tela inicial que precisa ser clicada -->
   <div id="gate">
@@ -252,8 +257,8 @@
     <div id="bloco-contador">
       <p>número de curiosos registrados até agora:</p>
       <div align="center">
-        <a href="https://contador.s12.com.br">
-          <img src="https://contador.s12.com.br/img-8ZC960yCC8b8W5Z3-1.gif" border="0" alt="contador gratuito de visitas">
+        <a href="">
+          <img src="https://contador.s12.com.br/img-xx4Aza5xw7bBAB75-33.gif" border="0" alt="contador gratuito de visitas">
         </a>
         <script type="text/javascript" src="https://contador.s12.com.br/ad.js?id=8ZC960yCC8b8W5Z3"></script>
       </div>
@@ -300,12 +305,11 @@
       "clicou mais rápido que reage a um flash",
       "5 anos de premier e essa foi sua call certa",
       "posiciona o mouse e sai andando",
-      "o bot te mandou um 'demorou'",
+      "10 anos de mirage...",
       "ping ótimo, decisões nem tanto",
       "flashou o próprio time com estilo",
       "chorou tanto que baixou o FPS",
-      "aquele B rush virou documentário",
-      "eco te fragou e mandou 'gg ez'",
+      "vai ligar o monitor quando?",
       "mira ótima... pro próprio pé"
     ];
 
@@ -320,7 +324,9 @@
       // Vídeo só aparece e começa a rodar agora
       const video = document.getElementById("bgvideo");
       video.classList.add("ativo");
-      video.play().catch(() => {});
+      video.play().catch((err) => {
+        console.error("Não consegui iniciar o vídeo:", err);
+      });
 
       // Toca a música nesse mesmo clique (interação do usuário libera o autoplay)
       const tocarPromise = audio.play();
