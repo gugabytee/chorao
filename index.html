@@ -35,20 +35,47 @@
       font-size: 1.2em;
       color: #ff4444;
     }
+    #contador {
+      margin-top: 25px;
+      font-size: 1.1em;
+      color: #39ff14;
+      border: 1px dashed #39ff14;
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+    #rodape {
+      margin-top: 35px;
+      font-size: 1em;
+      color: #ccc;
+    }
+    #rodape a {
+      color: #39ff14;
+      text-decoration: none;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <h1>👀 Peguei você chorando!</h1>
   <p id="mensagem">detectando localização...</p>
   <p class="frase" id="frase"></p>
+  <div id="contador">carregando contador...</div>
+
+  <br>
+  <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
+
+  <p id="rodape">
+    agora que você tá aqui, segue lá na <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a><br>
+    e deixa seu choro ou elogio nos comentários da Steam no meu perfil 😄
+  </p>
 
   <audio id="musica" loop>
     <source src="musica.mp3" type="audio/mpeg">
   </audio>
 
-  <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
-
   <script>
+    // Frase aleatória
     const frases = [
       "relaxa, era só um smoke mal jogado",
       "o rank não define seu valor... define só um pouco",
@@ -59,17 +86,53 @@
     document.getElementById("frase").textContent =
       frases[Math.floor(Math.random() * frases.length)];
 
-    fetch("https://ipapi.co/json/")
+    // Geolocalização com fallback entre duas APIs
+    function tentarGeo() {
+      fetch("https://ipapi.co/json/")
+        .then(res => {
+          if (!res.ok) throw new Error("falhou ipapi");
+          return res.json();
+        })
+        .then(data => {
+          if (!data.city) throw new Error("sem cidade");
+          document.getElementById("mensagem").textContent =
+            `curioso e chorão detectado perto de ${data.city}`;
+        })
+        .catch(() => {
+          // fallback pra outra API gratuita
+          fetch("https://ipwho.is/")
+            .then(res => res.json())
+            .then(data => {
+              if (data.city) {
+                document.getElementById("mensagem").textContent =
+                  `curioso e chorão detectado perto de ${data.city}`;
+              } else {
+                document.getElementById("mensagem").textContent =
+                  "curioso e chorão detectado";
+              }
+            })
+            .catch(() => {
+              document.getElementById("mensagem").textContent =
+                "curioso e chorão detectado";
+            });
+        });
+    }
+    tentarGeo();
+
+    // Contador de cliques usando CountAPI (gratuito, sem cadastro)
+    // Troque "mdsguh-troll-page" por um nome único seu, pra não bater com o de outra pessoa
+    fetch("https://api.countapi.xyz/hit/mdsguh-troll-page/visitas")
       .then(res => res.json())
       .then(data => {
-        document.getElementById("mensagem").textContent =
-          `curioso e chorão detectado perto de ${data.city}`;
+        document.getElementById("contador").textContent =
+          `😭 número de chorões até agora: ${data.value}`;
       })
       .catch(() => {
-        document.getElementById("mensagem").textContent =
-          "curioso e chorão detectado";
+        document.getElementById("contador").textContent =
+          "contador indisponível no momento";
       });
 
+    // Áudio toca no primeiro clique (autoplay com som é bloqueado por padrão)
     const audio = document.getElementById("musica");
     document.body.addEventListener("click", () => {
       audio.play();
