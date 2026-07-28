@@ -10,6 +10,7 @@
       text-align: center;
       font-family: 'Courier New', monospace;
       padding-top: 50px;
+      margin: 0;
     }
     h1 {
       font-size: 2.5em;
@@ -54,39 +55,98 @@
       text-decoration: none;
       font-weight: bold;
     }
+
+    /* Tela inicial (gate) */
+    #gate {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #gate h2 {
+      font-size: 1.6em;
+      margin-bottom: 25px;
+    }
+    #btnEntrar {
+      background: #39ff14;
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.3em;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+    #btnEntrar:hover {
+      background: #2ecc0f;
+    }
+
+    /* Conteúdo escondido até clicar */
+    #conteudo {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>👀 Peguei você chorando!</h1>
-  <p id="mensagem">detectando localização...</p>
-  <p class="frase" id="frase"></p>
-  <div id="contador">carregando contador...</div>
 
-  <br>
-  <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
+  <!-- Tela inicial que precisa ser clicada -->
+  <div id="gate">
+    <h2>🔞 clique para continuar</h2>
+    <button id="btnEntrar">ENTRAR</button>
+  </div>
 
-  <p id="rodape">
-    agora que você tá aqui, segue lá na <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a><br>
-    e deixa seu choro ou elogio nos comentários da Steam no meu perfil 😄
-  </p>
+  <!-- Conteúdo real, só aparece após o clique -->
+  <div id="conteudo">
+    <h1>👀 Peguei você chorando!</h1>
+    <p id="mensagem">detectando localização...</p>
+    <p class="frase" id="frase"></p>
+    <div id="contador">carregando contador...</div>
+
+    <br>
+    <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
+
+    <p id="rodape">
+      agora que você tá aqui, segue lá na <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a><br>
+      e deixa seu choro ou elogio nos comentários da Steam no meu perfil 😄
+    </p>
+  </div>
 
   <audio id="musica" loop>
     <source src="musica.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    // Frase aleatória
-    const frases = [
-      "relaxa, era só um smoke mal jogado",
-      "o rank não define seu valor... define só um pouco",
-      "avisa a rota que era friendly fire",
-      "5 anos de premier pra isso?",
-      "posiciona o mouse e sai andando"
-    ];
-    document.getElementById("frase").textContent =
-      frases[Math.floor(Math.random() * frases.length)];
+    document.getElementById("btnEntrar").addEventListener("click", () => {
+      // Esconde o gate e mostra o conteúdo
+      document.getElementById("gate").style.display = "none";
+      document.getElementById("conteudo").style.display = "block";
 
-    // Geolocalização com fallback entre duas APIs
+      // Toca a música nesse mesmo clique (interação do usuário libera o autoplay)
+      const audio = document.getElementById("musica");
+      audio.play();
+
+      // Só agora dispara a geolocalização e o contador
+      tentarGeo();
+      contarVisita();
+
+      // Frase aleatória
+      const frases = [
+        "relaxa, era só um smoke mal jogado",
+        "o rank não define seu valor... define só um pouco",
+        "avisa a rota que era friendly fire",
+        "5 anos de premier pra isso?",
+        "posiciona o mouse e sai andando"
+      ];
+      document.getElementById("frase").textContent =
+        frases[Math.floor(Math.random() * frases.length)];
+    });
+
     function tentarGeo() {
       fetch("https://ipapi.co/json/")
         .then(res => {
@@ -99,7 +159,6 @@
             `curioso e chorão detectado perto de ${data.city}`;
         })
         .catch(() => {
-          // fallback pra outra API gratuita
           fetch("https://ipwho.is/")
             .then(res => res.json())
             .then(data => {
@@ -117,26 +176,19 @@
             });
         });
     }
-    tentarGeo();
 
-    // Contador de cliques usando CountAPI (gratuito, sem cadastro)
-    // Troque "mdsguh-troll-page" por um nome único seu, pra não bater com o de outra pessoa
-    fetch("https://api.countapi.xyz/hit/mdsguh-troll-page/visitas")
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("contador").textContent =
-          `😭 número de chorões até agora: ${data.value}`;
-      })
-      .catch(() => {
-        document.getElementById("contador").textContent =
-          "contador indisponível no momento";
-      });
-
-    // Áudio toca no primeiro clique (autoplay com som é bloqueado por padrão)
-    const audio = document.getElementById("musica");
-    document.body.addEventListener("click", () => {
-      audio.play();
-    }, { once: true });
+    function contarVisita() {
+      fetch("https://api.countapi.xyz/hit/mdsguh-troll-page/visitas")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("contador").textContent =
+            `😭 número de chorões até agora: ${data.value}`;
+        })
+        .catch(() => {
+          document.getElementById("contador").textContent =
+            "contador indisponível no momento";
+        });
+    }
   </script>
 </body>
 </html>
