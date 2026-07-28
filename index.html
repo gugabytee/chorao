@@ -1,194 +1,74 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Surpresa!</title>
-  <style>
-    body {
-      background: #000;
-      color: #39ff14;
-      text-align: center;
-      font-family: 'Courier New', monospace;
-      padding-top: 50px;
-      margin: 0;
-    }
-    h1 {
-      font-size: 2.5em;
-      animation: piscar 1s infinite;
-    }
-    @keyframes piscar {
-      50% { opacity: 0.3; }
-    }
-    img {
-      max-width: 400px;
-      margin-top: 20px;
-      border: 3px solid #39ff14;
-      border-radius: 10px;
-    }
-    #mensagem {
-      font-weight: bold;
-      color: #fff;
-      font-size: 1.3em;
-      margin-top: 15px;
-    }
-    .frase {
-      margin-top: 20px;
-      font-size: 1.2em;
-      color: #ff4444;
-    }
-    #contador {
-      margin-top: 25px;
-      font-size: 1.1em;
-      color: #39ff14;
-      border: 1px dashed #39ff14;
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 8px;
-    }
-    #rodape {
-      margin-top: 35px;
-      font-size: 1em;
-      color: #ccc;
-    }
-    #rodape a {
-      color: #39ff14;
-      text-decoration: none;
-      font-weight: bold;
-    }
+<meta charset="UTF-8">
+<title>...</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* Tela inicial (gate) */
-    #gate {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    #gate h2 {
-      font-size: 1.6em;
-      margin-bottom: 25px;
-    }
-    #btnEntrar {
-      background: #39ff14;
-      color: #000;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1.3em;
-      font-weight: bold;
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: 'Courier New', monospace;
-    }
-    #btnEntrar:hover {
-      background: #2ecc0f;
-    }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    cursor: pointer;
+  }
 
-    /* Conteúdo escondido até clicar */
-    #conteudo {
-      display: none;
-    }
-  </style>
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-family: sans-serif;
+    font-size: 14px;
+    background: #000;
+    z-index: 2;
+  }
+
+  #overlay.hidden {
+    display: none;
+  }
+</style>
 </head>
 <body>
 
-  <!-- Tela inicial que precisa ser clicada -->
-  <div id="gate">
-    <h2>🔞 clique para continuar</h2>
-    <button id="btnEntrar">ENTRAR</button>
-  </div>
+  <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmFjYTY5YTVvenNpZ2pzZDRwc3hiNDl4Z3dzejYwYjRrYXczYml6cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ar71Hyi0ZKejXzMoNs/giphy.gif" alt="Batman sentado na chuva">
 
-  <!-- Conteúdo real, só aparece após o clique -->
-  <div id="conteudo">
-    <h1>👀 Peguei você chorando!</h1>
-    <p id="mensagem">detectando localização...</p>
-    <p class="frase" id="frase"></p>
-    <div id="contador">carregando contador...</div>
+  <audio id="musica" src="musica.mp3" loop></audio>
 
-    <br>
-    <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt5OXBmcWI0ajVnYTRhdDByNWJxaDF4ZnBkZnJlMWhiZWNncjRheCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BoWWC336ETocBKGAD5/giphy.gif" alt="Animação divertida">
-
-    <p id="rodape">
-      agora que você tá aqui, segue lá na <a href="https://twitch.tv/mdsguh" target="_blank">twitch.tv/mdsguh</a><br>
-      e deixa seu choro ou elogio nos comentários da Steam no meu perfil 😄
-    </p>
-  </div>
-
-  <audio id="musica" loop>
-    <source src="musica.mp3" type="audio/mpeg">
-  </audio>
+  <div id="overlay">clique para tocar 🔊</div>
 
   <script>
-    document.getElementById("btnEntrar").addEventListener("click", () => {
-      // Esconde o gate e mostra o conteúdo
-      document.getElementById("gate").style.display = "none";
-      document.getElementById("conteudo").style.display = "block";
+    const audio = document.getElementById('musica');
+    const overlay = document.getElementById('overlay');
 
-      // Toca a música nesse mesmo clique (interação do usuário libera o autoplay)
-      const audio = document.getElementById("musica");
-      audio.play();
-
-      // Só agora dispara a geolocalização e o contador
-      tentarGeo();
-      contarVisita();
-
-      // Frase aleatória
-      const frases = [
-        "relaxa, era só um smoke mal jogado",
-        "o rank não define seu valor... define só um pouco",
-        "avisa a rota que era friendly fire",
-        "5 anos de premier pra isso?",
-        "posiciona o mouse e sai andando"
-      ];
-      document.getElementById("frase").textContent =
-        frases[Math.floor(Math.random() * frases.length)];
+    // Tenta autoplay direto (funciona em alguns navegadores/contextos)
+    audio.play().then(() => {
+      overlay.classList.add('hidden');
+    }).catch(() => {
+      // Bloqueado: precisa de interação do usuário
     });
 
-    function tentarGeo() {
-      fetch("https://ipapi.co/json/")
-        .then(res => {
-          if (!res.ok) throw new Error("falhou ipapi");
-          return res.json();
-        })
-        .then(data => {
-          if (!data.city) throw new Error("sem cidade");
-          document.getElementById("mensagem").textContent =
-            `curioso e chorão detectado perto de ${data.city}`;
-        })
-        .catch(() => {
-          fetch("https://ipwho.is/")
-            .then(res => res.json())
-            .then(data => {
-              if (data.city) {
-                document.getElementById("mensagem").textContent =
-                  `curioso e chorão detectado perto de ${data.city}`;
-              } else {
-                document.getElementById("mensagem").textContent =
-                  "curioso e chorão detectado";
-              }
-            })
-            .catch(() => {
-              document.getElementById("mensagem").textContent =
-                "curioso e chorão detectado";
-            });
-        });
-    }
-
-    function contarVisita() {
-      fetch("https://api.countapi.xyz/hit/mdsguh-troll-page/visitas")
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("contador").textContent =
-            `😭 número de chorões até agora: ${data.value}`;
-        })
-        .catch(() => {
-          document.getElementById("contador").textContent =
-            "contador indisponível no momento";
-        });
-    }
+    // Ao primeiro clique em qualquer lugar da página, garante que toque
+    document.body.addEventListener('click', () => {
+      audio.play();
+      overlay.classList.add('hidden');
+    }, { once: true });
   </script>
+
 </body>
 </html>
